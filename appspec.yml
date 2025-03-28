@@ -1,9 +1,10 @@
 version: 0.0
 os: linux
 files:
-  - source: src/main/webapp/jsp/
-    destination: /opt/tomcat/tomcat-10/webapps/boot/jsp/
+  - source: src/main/webapp/jsp
+    destination: /opt/tomcat/tomcat-10/webapps/boot
     overwrite: yes
+
 
 permissions:
   - object: /
