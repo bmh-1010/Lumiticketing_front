@@ -7,9 +7,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
-
-import com.care.boot.config.RedisService;
-
 import jakarta.servlet.http.HttpSession;
 
 @Service
@@ -18,8 +15,6 @@ import jakarta.servlet.http.HttpSession;
 public class MemberService {
     @Autowired private IMemberMapper mapper;
     @Autowired private HttpSession session;
-    @Autowired private RedisService redisService;
-
 
     public String registProc(MemberDTO member) {
         if(member.getId() == null || member.getId().trim().isEmpty()) return "아이디를 입력하세요.";
@@ -120,34 +115,29 @@ public class MemberService {
 
     
     public String loginProc(String id, String pw) {
-        if(id == null || id.trim().isEmpty()) return "아이디를 입력하세요.";
-        if(pw == null || pw.trim().isEmpty()) return "비밀번호를 입력하세요.";
-
-        String key = "vip-login:" + id;
-        String cachedPw = redisService.get(key);
-
-        if (cachedPw != null && cachedPw.equals(pw)) {
-            MemberDTO member = mapper.login(id);
-            if (member != null && ("VIP".equals(member.getMembership()) || "ADMIN".equals(member.getMembership()))) {
-                setSession(member);
-                return "로그인 성공";
-            }
+        if(id == null || id.trim().isEmpty()) {
+            return "아이디를 입력하세요.";
+        }
+        if(pw == null || pw.trim().isEmpty()) {
+            return "비밀번호를 입력하세요.";
         }
 
-        MemberDTO check = mapper.login(id);
+        MemberDTO check = mapper.login(id);  // RegularMember만 조회할 수도 있음!
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        if(check != null && encoder.matches(pw, check.getPw())) {
+            session.setAttribute("id", check.getId());
+            session.setAttribute("userName", check.getUserName());
+            session.setAttribute("mobile", check.getMobile());
+            session.setAttribute("membership", check.getMembership());
+            
+            // ✅ VIP 여부 체크 후 세션 저장
 
-        if (check != null && encoder.matches(pw, check.getPw())) {
-            if ("VIP".equals(check.getMembership()) || "ADMIN".equals(check.getMembership())) {
-                redisService.save(key, pw); // 비밀번호 캐시에 저장
-            }
-            setSession(check);
             return "로그인 성공";
         }
 
+
         return "아이디 또는 비밀번호를 확인 후 다시 입력하세요.";
     }
-
 
     public List<MemberDTO> searchRegularMembers(String keyword) {
         return mapper.searchRegularMembers(keyword);
@@ -215,13 +205,7 @@ public class MemberService {
         }
     }
     
-    private void setSession(MemberDTO member) {
-        session.setAttribute("id", member.getId());
-        session.setAttribute("userName", member.getUserName());
-        session.setAttribute("mobile", member.getMobile());
-        session.setAttribute("membership", member.getMembership());
-        session.setAttribute("loginUser", member);
-    }
+    
 
     
     

@@ -1,12 +1,13 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"   pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 
-<c:if test="${sessionScope.user == null || sessionScope.user.membership ne 'admin'}">
+<c:if test="${sessionScope.loginUser == null || sessionScope.loginUser.membership ne 'admin'}">
     <script>
         alert("관리자만 접근 가능한 페이지입니다!");
-        window.location.href = "index";  // ✅ index.jsp로 리다이렉트
+        window.location.href = "index";
     </script>
 </c:if>
+
 
 <c:import url="/header" />
 	<div align="center">

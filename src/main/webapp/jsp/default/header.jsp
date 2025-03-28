@@ -130,22 +130,23 @@
 </script>
 
 <div class="header-container">
-  <h1 class="site-title">LUMITICKETING VIP</h1>
-
-  <div class="user-info">
+    <h1 class="site-title">LUMITICKETING VIP</h1>
+    
     <c:choose>
-      <c:when test="${not empty sessionScope.loginUser}">
-        ${sessionScope.loginUser.id}님 환영합니다!
-        등급: ${sessionScope.loginUser.membership}
-      </c:when>
-      <c:otherwise>
-        로그인해주세요.
-      </c:otherwise>
-    </c:choose>
-  </div>
-</div>
+    <c:when test="${not empty sessionScope.loginUser}">
+        <div class="user-info">
+            ${sessionScope.loginUser.id}님 환영합니다! 등급: ${sessionScope.loginUser.membership}
+        </div>
+    </c:when>
+    <c:otherwise>
+        <div class="user-info">
+            로그인해주세요.
+        </div>
+    </c:otherwise>
+</c:choose>
 
-  
+
+</div>
 
 <c:url var="context" value="/"/>
 <div align="right">
@@ -157,16 +158,16 @@
 
 <li><a href="${context}logout">Logout</a></li>
 
-   <!-- 🔹 MemberInfo & Ticket Holder: 관리자(admin)만 표시 -->
-   <c:if test="${sessionScope.membership == 'admin'}">
-      <li id="memberMenu" onclick="toggleDropdown()">MemberInfo
-         <div id="memberDropdown" class="dropdown-content">
-            <a href="${context}memberInfoRegular">Regular Member</a>
-            <a href="${context}memberInfoVIP">VIP Member</a>
-         </div>
-      </li>
-      <li><a href="${context}ticketHolder">Ticket Holder</a></li>
-   </c:if>
+<c:if test="${sessionScope.loginUser.membership == 'admin'}">
+   <li id="memberMenu" onclick="toggleDropdown()">MemberInfo
+      <div id="memberDropdown" class="dropdown-content">
+         <a href="${context}memberInfoRegular">Regular Member</a>
+         <a href="${context}memberInfoVIP">VIP Member</a>
+      </div>
+   </li>
+   <li><a href="${context}ticketHolder">Ticket Holder</a></li>
+</c:if>
+
 </ul>
 
 </div>

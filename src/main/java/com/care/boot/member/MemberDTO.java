@@ -92,4 +92,21 @@ public class MemberDTO implements Serializable {
         }
         return false; // 티켓 부족
     }
+    
+    @Override
+    public String toString() {
+        return "MemberDTO{" +
+                "id='" + id + '\'' +
+                ", pw='" + pw + '\'' +
+                ", userName='" + userName + '\'' +
+                ", mobile='" + mobile + '\'' +
+                ", membership='" + membership + '\'' +
+                ", vipNumber=" + vipNumber +
+                ", ticket_number=" + ticket_number +
+                ", confirm='" + confirm + '\'' +
+                ", date=" + date +
+                '}';
+    }
+
+    
 }

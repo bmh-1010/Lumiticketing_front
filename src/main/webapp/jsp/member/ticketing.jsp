@@ -3,7 +3,7 @@
 <c:import url="/header" />
 
 <%-- 로그인 상태 확인 (세션에 저장된 ID 체크) --%>
-<c:if test="${empty sessionScope.id}">
+<c:if test="${empty sessionScope.loginUser.id}">
     <script>
         alert("로그인을 해주세요!");
         location.href = "${pageContext.request.contextPath}/login";
