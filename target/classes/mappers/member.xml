@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.care.boot.member.IMemberMapper">
+
+    <!-- VIP 회원 ResultMap -->
+    <resultMap id="vipMemberResultMap" type="com.care.boot.member.MemberDTO">
+        <result property="vipNumber" column="vip_number"/>
+    </resultMap>
+
+    <!-- 회원 정보 매핑 -->
+    <resultMap type="com.care.boot.member.MemberDTO" id="dbQuiz">
+        <id column="id" property="id"/>
+        <result column="pw" property="pw"/>
+        <result column="username" property="userName"/>
+        <result column="mobile" property="mobile"/>
+        <result column="membership" property="membership"/>
+    </resultMap>
+
+    <!-- 회원가입 -->
+    <insert id="registProc">
+        INSERT INTO RegularMember (id, pw, userName, mobile, membership)
+        VALUES (#{id}, #{pw}, #{userName}, #{mobile}, #{membership})
+    </insert>
+
+    <!-- 로그인 -->
+    <select id="login" resultType="com.care.boot.member.MemberDTO">
+        SELECT id, membership, 'regular' AS role FROM RegularMember WHERE id = #{id}
+        UNION
+        SELECT id, membership, 'vip' AS role FROM VIPMember WHERE id = #{id}
+        UNION
+        SELECT id, membership, 'admin' AS role FROM Admin WHERE id = #{id}
+    </select>
+
+    <!-- 회원 정보 조회 -->
+    <select id="memberInfo" resultMap="dbQuiz">
+        <choose>
+            <when test="select == 'id'">
+                SELECT * FROM RegularMember WHERE id LIKE CONCAT('%', #{search}, '%') LIMIT #{begin}, #{end}
+            </when>
+            <when test="select == 'mobile'">
+                SELECT * FROM RegularMember WHERE mobile LIKE CONCAT('%', #{search}, '%') LIMIT #{begin}, #{end}
+            </when>
+            <otherwise>
+                SELECT * FROM RegularMember LIMIT #{begin}, #{end}
+            </otherwise>
+        </choose>
+    </select>
+
+    <!-- 전체 회원 수 조회 -->
+    <select id="totalCount">
+        <choose>
+            <when test="select == 'id'">
+                SELECT COUNT(id) FROM RegularMember WHERE id LIKE CONCAT('%', #{search}, '%')
+            </when>
+            <when test="select == 'mobile'">
+                SELECT COUNT(id) FROM RegularMember WHERE mobile LIKE CONCAT('%', #{search}, '%')
+            </when>
+            <otherwise>
+                SELECT COUNT(id) FROM RegularMember
+            </otherwise>
+        </choose>
+    </select>
+
+    <!-- 회원 정보 수정 -->
+    <update id="updateProc">
+        UPDATE RegularMember SET pw=#{pw}, mobile=#{mobile}, userName=#{userName} WHERE id=#{id}
+    </update>
+
+    <!-- 회원 삭제 -->
+    <delete id="deleteProc">
+        DELETE FROM RegularMember WHERE id=#{id}
+    </delete>
+
+    <!-- 일반회원 → VIP 승격 -->
+    <insert id="promoteToVIP">
+        INSERT INTO VIPMember (id, pw, userName, mobile, membership, vip_number)
+        SELECT id, pw, userName, mobile, 'VIP', (SELECT COALESCE(MAX(vip_number), 0) + 1 FROM VIPMember)
+        FROM RegularMember WHERE id = #{id}
+    </insert>
+
+    <delete id="removeFromRegular">
+        DELETE FROM RegularMember WHERE id = #{id}
+    </delete>
+
+    <select id="countVIPMembers" resultType="int">
+        SELECT COUNT(*) FROM VIPMember
+    </select>
+
+    <update id="upgradeToVIP">
+        UPDATE VIPMember SET membership = 'VIP', vip_number = #{vipNumber} WHERE id = #{id}
+    </update>
+
+    <!-- 티켓 번호 자동 증가 -->
+<select id="getNextVipTicketNumber" resultType="int">
+    SELECT COALESCE(MIN(t.ticket_number + 1), 1)
+    FROM TicketHolder t
+    WHERE t.ticket_number &lt; 100 AND NOT EXISTS 
+    (SELECT 1 FROM TicketHolder WHERE ticket_number = t.ticket_number + 1)
+</select>
+
+
+    <select id="getNextRegularTicketNumber" resultType="int">
+        SELECT COALESCE(MIN(t.ticket_number + 1), 101)
+        FROM TicketHolder t
+        WHERE t.ticket_number BETWEEN 100 AND 5000 AND NOT EXISTS 
+        (SELECT 1 FROM TicketHolder WHERE ticket_number = t.ticket_number + 1)
+    </select>
+
+    <!-- 일반회원 목록 조회 -->
+    <select id="getRegularMembers" resultType="com.care.boot.member.MemberDTO">
+        SELECT * FROM RegularMember
+        <where>
+            <if test="searchType != null and keyword != null and searchType != '전체'">
+                <choose>
+                    <when test="searchType == 'id'">
+                        AND id LIKE CONCAT('%', #{keyword}, '%')
+                    </when>
+                    <when test="searchType == 'userName'">
+                        AND userName LIKE CONCAT('%', #{keyword}, '%')
+                    </when>
+                    <when test="searchType == 'mobile'">
+                        AND mobile LIKE CONCAT('%', #{keyword}, '%')
+                    </when>
+                </choose>
+            </if>
+        </where>
+    </select>
+
+    <!-- VIP회원 검색 -->
+    <select id="searchVipMembers" parameterType="String" resultMap="vipMemberResultMap">
+        SELECT id, vip_number AS vipNumber, userName, mobile, membership, date 
+        FROM VIPMember 
+        WHERE id LIKE CONCAT('%', #{keyword}, '%')
+    </select>
+
+</mapper>

@@ -1,0 +1,22 @@
+version: 0.0
+os: linux
+
+
+files:
+  - source: boot.war
+    destination: /opt/tomcat/tomcat-10/webapps/
+    overwrite: yes
+
+
+
+permissions:
+  - object: /
+    pattern: "**"
+    owner: ubuntu
+    group: ubuntu
+
+hooks:
+  AfterInstall:
+    - location: Scripts/deploy/deploy.sh
+      timeout: 60
+      runas: ubuntu
