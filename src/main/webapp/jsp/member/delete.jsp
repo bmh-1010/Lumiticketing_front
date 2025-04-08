@@ -3,7 +3,7 @@
 <c:import url="/header" />
 
 <div align="center">
-<h1>회원 탈퇴</h1>
+<h1>회원 탈퇴고</h1>
 <table>
 	<tr><td>${msg }</td></tr>
 	<tr><td>
