@@ -63,6 +63,8 @@
         WHERE id = #{id}
     </select>
 
-
+	<select id="getAllConcerts" resultType="com.care.boot.ticket.ConcertDTO">
+    	SELECT * FROM Concert
+	</select>
 
 </mapper>
