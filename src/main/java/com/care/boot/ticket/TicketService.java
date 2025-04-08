@@ -16,8 +16,8 @@ public class TicketService {
     private final int DEFAULT_CONCERT_ID = 1;
 
     // ✅ 콘서트 전체 목록 조회 (티케팅 페이지용)
-    public List<ConcertDTO> getAllConcerts() {
-    	 System.out.println("출력 : ticketMapper.getAllConcerts()");
+    public List<ConcertDTO> selectAllConcerts() {
+    	 System.out.println("출력 : ticketMapper.selectAllConcerts()");
         return ticketMapper.selectAllConcerts();
     }
 
