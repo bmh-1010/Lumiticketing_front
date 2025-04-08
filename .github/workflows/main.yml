@@ -43,18 +43,18 @@ jobs:
           cp target/boot.war deploy/
           cp appspec.yml deploy/
           cp -r Scripts deploy/
-          cd deploy && zip -r login_front.zip .
+          cd deploy && zip -r vip.zip .
 
       - name: ☁️ S3로 업로드
-        run: aws s3 cp deploy/login_front.zip s3://lumiticketing-project-03230316/login_front_build.zip
+        run: aws s3 cp deploy/vip.zip s3://lumiticketing-project-03230316/vip_build.zip
 
       - name: 🚀 CodeDeploy 트리거
         run: |
           aws deploy create-deployment \
             --application-name LumiTicketing \
-            --deployment-group-name LumiTicketing-Group \
+            --deployment-group-name LumiTicketing-VIP \
             --file-exists-behavior OVERWRITE \
-            --s3-location bucket=lumiticketing-project-03230316,bundleType=zip,key=login_front_build.zip \
+            --s3-location bucket=lumiticketing-project-03230316,bundleType=zip,key=vip_build.zip \
             --region ap-northeast-2
 
 
