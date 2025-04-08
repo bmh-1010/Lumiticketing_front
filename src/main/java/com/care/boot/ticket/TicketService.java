@@ -17,9 +17,10 @@ public class TicketService {
 
     // ✅ 콘서트 전체 목록 조회 (티케팅 페이지용)
     public List<ConcertDTO> selectAllConcerts() {
-    	 System.out.println("출력 : ticketMapper.selectAllConcerts()");
-        return ticketMapper.selectAllConcerts();
+        System.out.println("출력 : ticketMapper.getAllConcerts()");
+        return ticketMapper.getAllConcerts();  // ✅ 이걸로 고치기
     }
+
 
     // ✅ 현재 콘서트 예매 인원 수 조회
     public int getCurrentTicketCount(int concertId) {
