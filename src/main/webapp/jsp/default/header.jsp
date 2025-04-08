@@ -130,7 +130,7 @@
 </script>
 
 <div class="header-container">
-    <h1 class="site-title">LUMITICKETING VIP</h1>
+    <h1 class="site-title">LUMITICKETING VIP들</h1>
     
     <c:choose>
     <c:when test="${not empty sessionScope.loginUser}">
