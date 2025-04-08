@@ -7,7 +7,8 @@ import java.util.List;
 @Mapper
 public interface TicketMapper {
 
-    // ✅ 콘서트 전체 목록 조회 (드롭다운용) // 이 이름으로!
+    // ✅ 콘서트 전체 목록 조회 (드롭다운용)
+	List<ConcertDTO> getAllConcerts();  // 이 이름으로!
     List<ConcertDTO> selectAllConcerts(); // 혹시 모르니 남겨둠
 
     // 🎟 티켓 예매 등록
