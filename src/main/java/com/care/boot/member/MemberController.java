@@ -103,7 +103,7 @@ public class MemberController {
             return "redirect:https://login.lumiticketing.click/boot/login";
         }
 
-        List<ConcertDTO> concertList = ticketService.getAllConcerts();
+        List<ConcertDTO> concertList = ticketService.selectAllConcerts();
         model.addAttribute("concertList", concertList);
 
         return "member/ticketing";
