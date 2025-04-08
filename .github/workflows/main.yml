@@ -1,0 +1,63 @@
+name: LumiTicketing CI/CD (WAR 배포 - boot.war)
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🧾 Checkout
+        uses: actions/checkout@v3
+
+      - name: ☕ Java 17 설정
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: 🛠 AWS 키를 application.properties에 삽입
+        run: |
+          echo "cloud.aws.credentials.access-key=${{ secrets.AWS_ACCESS_KEY_ID }}" >> src/main/resources/application.properties
+          echo "cloud.aws.credentials.secret-key=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> src/main/resources/application.properties
+          echo "cloud.aws.region.static=ap-northeast-2" >> src/main/resources/application.properties
+          echo "cloud.aws.stack.auto=false" >> src/main/resources/application.properties
+
+      - name: ⚙️ Maven 빌드 (.war 생성)
+        run: mvn clean package -DskipTests=true
+
+      - name: ✅ AWS 인증 설정
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-2
+
+      - name: 📦 배포 ZIP 만들기 (boot.war 포함)
+        run: |
+          mkdir deploy
+          cp target/boot.war deploy/
+          cp appspec.yml deploy/
+          cp -r Scripts deploy/
+          cd deploy && zip -r login_front.zip .
+
+      - name: ☁️ S3로 업로드
+        run: aws s3 cp deploy/login_front.zip s3://lumiticketing-project-03230316/login_front_build.zip
+
+      - name: 🚀 CodeDeploy 트리거
+        run: |
+          aws deploy create-deployment \
+            --application-name LumiTicketing \
+            --deployment-group-name LumiTicketing-Group \
+            --file-exists-behavior OVERWRITE \
+            --s3-location bucket=lumiticketing-project-03230316,bundleType=zip,key=login_front_build.zip \
+            --region ap-northeast-2
+
+
+
+
+
